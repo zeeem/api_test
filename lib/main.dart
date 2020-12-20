@@ -6,7 +6,10 @@ String baseAPIurl = "https://yizhouzhao.dev";
 
 main(List<String> args) async {
   print("dart running --->>");
-  await api_call_POST();
+
+  //function to run
+  await api_call_POST(); // POST
+  // await api_call_GET(); //GET
 }
 
 api_call_GET() async {

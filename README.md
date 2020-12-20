@@ -1,5 +1,8 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+## Dart api test
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+The main func is in `main.dart` located at `lib/main.dart`.
+
+inside the `main()` comment out the unused api call `(line 10 to 12)` to replicate the error or see result.
+two functions are:
+    - `api_call_POST()`
+    - `api_call_GET()`
