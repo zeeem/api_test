@@ -43,7 +43,10 @@ api_call_POST() async {
     "last_name": "ln_test_user$userNum"
   };
 
-  Map<String, dynamic> loginMap = {"username": "test_u2", "password": "123123"};
+  Map<String, dynamic> loginMap = {
+    "username": "test_u2",
+    "password": "123123#"
+  };
 
   // print('map body====>> $map');
 
@@ -52,20 +55,17 @@ api_call_POST() async {
   var response =
       await apiNetworkManager.request('POST', '/api/login/', body: loginMap);
 
-  var body = jsonDecode(response.body);
+  // var body = jsonDecode(response.body);
+  // print('logged in as: ${body['id']}');S
+  print(response.statusCode);
 
-  print('logged in as: ${body['id']}');
+//   Map<String, dynamic> facilityAssignMap = {"user": "${body['id']}"};
 
-  Map<String, dynamic> facilityAssignMap = {"user": "${body['id']}"};
+// // facility uuid: 381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda
 
-// facility uuid: 381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda
+//   var response2 = await apiNetworkManager.request(
+//       'PUT', '/api/belongsto/381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda/',
+//       body: facilityAssignMap);
 
-  var response2 = await apiNetworkManager.request(
-      'POST', '/api/belongsto/381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda/',
-      body: facilityAssignMap);
-
-  // print(response);
-  // print(response2.body);
-  print(response2.statusCode);
-  // await print(response.body);
+//   print(response2.statusCode);
 }

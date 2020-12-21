@@ -8,11 +8,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
 
-class HttpClient{
+class HttpClient {
   // attributes
   String _ipToConnect;
   String _apiLogout;
-  Map<String, String> _headers = {'content-type':'application/json'};
+  Map<String, String> _headers = {'content-type': 'application/json'};
   bool _nursingHome;
   var _client = http.Client();
   Map<String, dynamic> _formatValidator = {"Validate": "Purpose"};
@@ -23,34 +23,41 @@ class HttpClient{
   ///             last two groups of ip address if nursingHome is true
   ///   - nursingHome: bool, optional. Tell NetworkManager if it's connecting to
   ///             nursing home or not
-  HttpClient(String ipAddr, {bool nursingHome: false, String apiLogout:'/api/logout/', String port:""}){
+  HttpClient(String ipAddr,
+      {bool nursingHome: false,
+      String apiLogout: '/api/logout/',
+      String port: ""}) {
     _nursingHome = nursingHome;
     _apiLogout = apiLogout;
 
     // If the user is connecting to nursing home's raspberry pi
-    if(_nursingHome){
+    if (_nursingHome) {
       // Validate the first group of ip address
-      if(int.parse(ipAddr.substring(0, 3)) < 0 || int.parse(ipAddr.substring(0, 3)) > 255) {
+      if (int.parse(ipAddr.substring(0, 3)) < 0 ||
+          int.parse(ipAddr.substring(0, 3)) > 255) {
         FormatException("Your input is invalid");
       }
       // validate the second group of ip address
-      if(int.parse(ipAddr.substring(3, 6)) < 0 || int.parse(ipAddr.substring(3, 6)) > 255){
+      if (int.parse(ipAddr.substring(3, 6)) < 0 ||
+          int.parse(ipAddr.substring(3, 6)) > 255) {
         FormatException("Your input is invalid");
       }
-      this._ipToConnect = '192.168.'+ int.parse(ipAddr.substring(0, 3)).toString() + "." + int.parse(ipAddr.substring(3, 6)).toString();
+      this._ipToConnect = '192.168.' +
+          int.parse(ipAddr.substring(0, 3)).toString() +
+          "." +
+          int.parse(ipAddr.substring(3, 6)).toString();
       _ipToConnect += port;
-    }else{
+    } else {
       // connect to server in cloud
       this._ipToConnect = ipAddr;
     }
   }
 
-
-  void initClient(){
+  void initClient() {
     this._client = new http.Client();
   }
 
-  void closeClient(){
+  void closeClient() {
     this._client.close();
   }
 
@@ -60,10 +67,10 @@ class HttpClient{
   /// Return:
   ///   - Future<http.Response>
   Future<http.Response> get(String apiUri) async {
-    var uriResponse = await _client.get('https://'+_ipToConnect+apiUri, headers: _headers);
+    var uriResponse = await _client.get('https://' + _ipToConnect + apiUri,
+        headers: _headers);
     return uriResponse;
   }
-
 
   /// Abstract the http.Client.post() method
   /// Arguments:
@@ -72,31 +79,66 @@ class HttpClient{
   ///           Note that Map<String, dynamic> will be converted to JSON format.
   /// Return:
   ///   - Future<http.Response>
-  Future<http.Response> post(String apiUri, dynamic body) async{
+  Future<http.Response> post(String apiUri, dynamic body) async {
     String payload;
 
     // check the argument types
-    if(body.runtimeType != "".runtimeType && body.runtimeType != _formatValidator.runtimeType){
+    if (body.runtimeType != "".runtimeType &&
+        body.runtimeType != _formatValidator.runtimeType) {
       throw FormatException("Format of body is incorrect");
     }
 
     // If body is Map<String, dynamic>
-    if(body.runtimeType == _formatValidator.runtimeType){
+    if (body.runtimeType == _formatValidator.runtimeType) {
       payload = json.encode(body);
-    }else{
+    } else {
       // validate format if it's string
       json.decode(body);
       payload = body;
     }
 
     // Send post request
-    var uriResponse = await _client.post('https://'+_ipToConnect+apiUri, headers: _headers, body: payload);
+    var uriResponse = await _client.post('https://' + _ipToConnect + apiUri,
+        headers: _headers, body: payload);
     // Update header
     _updateHeaders(uriResponse.headers, apiUri);
 
     return uriResponse;
   }
 
+  /// Abstract the http.Client.put() method
+  /// Arguments:
+  ///   - apiUri: String. Started and ended with '/'
+  ///   - body: Dynamic. Can be String in JSON format, or Map<String, dynamic>.
+  ///           Note that Map<String, dynamic> will be converted to JSON format.
+  /// Return:
+  ///   - Future<http.Response>
+  Future<http.Response> put(String apiUri, dynamic body) async {
+    String payload;
+
+    // check the argument types
+    if (body.runtimeType != "".runtimeType &&
+        body.runtimeType != _formatValidator.runtimeType) {
+      throw FormatException("Format of body is incorrect");
+    }
+
+    // If body is Map<String, dynamic>
+    if (body.runtimeType == _formatValidator.runtimeType) {
+      payload = json.encode(body);
+    } else {
+      // validate format if it's string
+      json.decode(body);
+      payload = body;
+    }
+
+    // Send post request
+    var uriResponse = await _client.put('https://' + _ipToConnect + apiUri,
+        headers: _headers, body: payload);
+    // Update header
+    _updateHeaders(uriResponse.headers, apiUri);
+
+    return uriResponse;
+  }
 
   /// Update headers of request that _client used to send request
   /// Arguments:
@@ -104,20 +146,19 @@ class HttpClient{
   ///   - apiUri: String, the api uri just sent
   /// Return:
   ///   - Void
-  void _updateHeaders(Map<String, dynamic> headers, String apiUri){
+  void _updateHeaders(Map<String, dynamic> headers, String apiUri) {
     // get csrfToken if possible
-    if(headers.containsKey('set-cookie')){
+    if (headers.containsKey('set-cookie')) {
       _headers['cookie'] = "";
       List<String> cookies = headers['set-cookie'].split(";");
-      for(String cookie in cookies){
-        if(cookie.contains("csrftoken")){
+      for (String cookie in cookies) {
+        if (cookie.contains("csrftoken")) {
           _headers['x-csrftoken'] = cookie.split('=')[1];
-
         }
-        if(cookie.contains('csrftoken') || cookie.contains("SameSite")){
+        if (cookie.contains('csrftoken') || cookie.contains("SameSite")) {
           _headers['cookie'] += cookie.split(",")[0] + ";";
         }
-        if(cookie.contains("sessionid")){
+        if (cookie.contains("sessionid")) {
           cookie = cookie.split(",")[1];
           _headers['cookie'] += cookie + ";";
         }
@@ -125,29 +166,29 @@ class HttpClient{
     }
 
     // if user is logged out, discard current csrftoken
-    if(apiUri == _apiLogout && _headers.containsKey('x-csrftoken')){
+    if (apiUri == _apiLogout && _headers.containsKey('x-csrftoken')) {
       _headers.remove('x-csrftoken');
     }
   }
 
-  Future<bool> ping() async{
+  Future<bool> ping() async {
     try {
       var response = await this.get('');
       return response.statusCode == 200;
-    }on SocketException{
+    } on SocketException {
       return false;
     }
-
   }
 }
 
-Future<void> main() async{
+Future<void> main() async {
   String userId;
   String braceletId;
   HttpClient networkManager = new HttpClient('yizhouzhao.dev');
 
   var response = await networkManager.get('/api/allapi/');
-  assert(response.statusCode == 200, "Incorrect status code, expecting 200, get ${response.statusCode}");
+  assert(response.statusCode == 200,
+      "Incorrect status code, expecting 200, get ${response.statusCode}");
   print("Pass!");
   /*
   /// Testing login

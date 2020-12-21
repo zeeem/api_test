@@ -105,6 +105,13 @@ class NetworkManager {
           }
           break;
 
+        // PUT method
+        case "PUT":
+          {
+            response = await _client.put(apiUri, body);
+          }
+          break;
+
         // Non-support method will throw FormatException.
         default:
           {
