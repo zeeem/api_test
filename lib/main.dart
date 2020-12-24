@@ -45,27 +45,33 @@ api_call_POST() async {
 
   Map<String, dynamic> loginMap = {
     "username": "test_u2",
-    "password": "123123#"
+    "password": "0123123"
   };
 
   // print('map body====>> $map');
 
   NetworkManager apiNetworkManager =
       NetworkManager(baseAPIurl, nursingHome: false);
+
+// //logout
+//   var logout_response =
+//       await apiNetworkManager.request('POST', '/api/logout/', body: {});
+//   print(logout_response.statusCode);
+//   print(logout_response.body);
+
+//login
   var response =
       await apiNetworkManager.request('POST', '/api/login/', body: loginMap);
 
   // var body = jsonDecode(response.body);
   // print('logged in as: ${body['id']}');S
   print(response.statusCode);
+  print(response.body);
 
 //   Map<String, dynamic> facilityAssignMap = {"user": "${body['id']}"};
-
 // // facility uuid: 381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda
-
 //   var response2 = await apiNetworkManager.request(
 //       'PUT', '/api/belongsto/381c31f1-f4fc-4d9a-aac0-6cdf7a78cdda/',
 //       body: facilityAssignMap);
-
 //   print(response2.statusCode);
 }
